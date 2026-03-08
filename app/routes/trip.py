@@ -47,8 +47,21 @@ async def create_trip(
 # ✅ GET ALL TRIPS
 @router.get("/", response_model=List[TripResponse])
 async def get_trips(db: AsyncSession = Depends(get_db)):
+
     result = await db.execute(select(Trip))
-    return result.scalars().all()
+    trips = result.scalars().all()
+
+    response = []
+
+    for trip in trips:
+        trip_dict = trip.__dict__
+
+        trip_dict["vehicle_name"] = trip.vehicle
+        trip_dict["driver_name"] = trip.driver
+
+        response.append(trip_dict)
+
+    return response
 
 
 # ✅ GET SINGLE TRIP
@@ -61,5 +74,29 @@ async def get_trip(trip_id: int, db: AsyncSession = Depends(get_db)):
 
     if not trip:
         raise HTTPException(status_code=404, detail="Trip not found")
+
+    return trip
+
+# ✅ CLOSE TRIP
+# CLOSE TRIP
+@router.put("/{trip_id}/close", response_model=TripResponse)
+async def close_trip(
+    trip_id: int,
+    db: AsyncSession = Depends(get_db)
+):
+
+    result = await db.execute(
+        select(Trip).where(Trip.id == trip_id)
+    )
+
+    trip = result.scalar_one_or_none()
+
+    if not trip:
+        raise HTTPException(status_code=404, detail="Trip not found")
+
+    trip.status = "completed"
+
+    await db.commit()
+    await db.refresh(trip)
 
     return trip

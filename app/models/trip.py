@@ -3,6 +3,7 @@ from app.models.base import Base
 import datetime
 import random
 
+
 class Trip(Base):
     __tablename__ = "trips"
 
@@ -44,6 +45,9 @@ class Trip(Base):
     unit = Column(String)
 
     notes = Column(Text)
+
+    # ⭐ ADD THIS
+    status = Column(String, default="active")
 
     created_at = Column(Date, default=datetime.date.today)
 

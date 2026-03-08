@@ -19,7 +19,7 @@ class InvoiceBase(BaseModel):
     igst: float = 0
     total_amount: float
 
-    gst_type: str
+    gst_type: Optional[str] = None
     gst_number: Optional[str] = None
 
     notes: Optional[str] = None

@@ -6,6 +6,9 @@ from app.schemas.driver import DriverResponse, DriverBase
 from app.services.driver_service import create_driver
 from app.models.driver import Driver 
 from fastapi import HTTPException 
+from app.models.ledger import Ledger
+from app.models.trip import Trip
+
 
 router = APIRouter(prefix="/drivers", tags=["Drivers"])
 
@@ -114,3 +117,30 @@ async def delete_driver(driver_id: int, db: AsyncSession = Depends(get_db)):
     await db.commit()
 
     return {"message": "Driver deleted successfully"}
+
+@router.get("/{driver_id}/ledger")
+async def get_driver_ledger(driver_id: int, db: AsyncSession = Depends(get_db)):
+
+    result = await db.execute(
+        select(Ledger)
+        .where(Ledger.driver_id == driver_id)
+        .order_by(Ledger.date.desc())
+    )
+
+    ledger = result.scalars().all()
+
+    return ledger
+
+@router.get("/{driver_id}/active-trip")
+async def get_active_trip(driver_id: int, db: AsyncSession = Depends(get_db)):
+
+    result = await db.execute(
+        select(Trip).where(
+            Trip.driver_id == driver_id,
+            Trip.status == "active"
+        )
+    )
+
+    trip = result.scalars().first()
+
+    return trip

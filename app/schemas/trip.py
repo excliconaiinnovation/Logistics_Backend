@@ -2,6 +2,7 @@ from pydantic import BaseModel
 from typing import Optional
 from datetime import date
 
+
 class TripCreate(BaseModel):
     freight_from: Optional[str]
     vehicle: str
@@ -37,9 +38,14 @@ class TripCreate(BaseModel):
 
     notes: Optional[str]
 
+
 class TripResponse(TripCreate):
     id: int
     lr_number: str
+    status: Optional[str] = "active"
+
+    vehicle_name: Optional[str] = None
+    driver_name: Optional[str] = None
 
     class Config:
         from_attributes = True

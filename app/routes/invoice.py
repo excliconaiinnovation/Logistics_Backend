@@ -71,3 +71,22 @@ async def delete_invoice(invoice_id: int, db: AsyncSession = Depends(get_db)):
     await db.commit()
 
     return {"message": "Invoice deleted successfully"}
+
+
+@router.put("/{invoice_id}", response_model=InvoiceResponse)
+async def update_invoice(invoice_id: int, data: InvoiceCreate, db: AsyncSession = Depends(get_db)):
+    result = await db.execute(
+        select(Invoice).where(Invoice.id == invoice_id)
+    )
+    invoice = result.scalar_one_or_none()
+
+    if not invoice:
+        raise HTTPException(status_code=404, detail="Invoice not found")
+
+    for key, value in data.dict().items():
+        setattr(invoice, key, value)
+
+    await db.commit()
+    await db.refresh(invoice)
+
+    return invoice

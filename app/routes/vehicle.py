@@ -117,3 +117,18 @@ async def get_vehicle(vehicle_id: int, db: AsyncSession = Depends(get_db)):
         raise HTTPException(404, "Vehicle not found")
 
     return vehicle
+
+@router.delete("/{vehicle_id}")
+async def delete_vehicle(vehicle_id: int, db: AsyncSession = Depends(get_db)):
+    result = await db.execute(
+        select(Vehicle).where(Vehicle.id == vehicle_id)
+    )
+    vehicle = result.scalar_one_or_none()
+
+    if not vehicle:
+        raise HTTPException(404, "Vehicle not found")
+
+    await db.delete(vehicle)
+    await db.commit()
+
+    return {"message": "Vehicle deleted successfully"}

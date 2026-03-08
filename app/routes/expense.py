@@ -60,16 +60,26 @@ async def get_expenses(
 # =========================
 # GET EXPENSES BY TRIP
 # =========================
-@router.get("/trip/{trip_id}", response_model=List[ExpenseResponse])
-async def get_trip_expenses(
-    trip_id: int,
-    db: AsyncSession = Depends(get_db)
-):
+@router.get("/report/trip-wise")
+async def trip_wise_report(db: AsyncSession = Depends(get_db)):
     result = await db.execute(
-        select(Expense).where(Expense.trip_id == trip_id)
+        select(
+            Trip.route,
+            func.sum(Expense.amount).label("total"),
+            func.count(Expense.id).label("entries")
+        )
+        .join(Trip, Expense.trip_id == Trip.id)
+        .group_by(Trip.route)
     )
 
-    return result.scalars().all()
+    return [
+        {
+            "trip_id": r.route,   # frontend same rahega
+            "total_expense": r.total,
+            "entries": r.entries
+        }
+        for r in result.all()
+    ]
 
 
 # =========================
@@ -237,3 +247,6 @@ async def monthly_report(
         }
         for r in result.all()
     ]
+    
+    
+    

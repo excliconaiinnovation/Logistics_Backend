@@ -10,6 +10,9 @@ from app.routes import maintenance
 from app.routes import party
 from app.routes import invoice
 from app.routes import auth
+from app.routes import reports
+from app.routes import company
+from app.routes import tyre
 
 
 app = FastAPI()
@@ -39,6 +42,9 @@ app.include_router(maintenance.router)
 app.include_router(party.router)
 app.include_router(invoice.router)
 app.include_router(auth.router)
+app.include_router(reports.router, prefix="/reports", tags=["Reports"])
+app.include_router(company.router)
+app.include_router(tyre.router)
 
 @app.get("/")
 async def root():

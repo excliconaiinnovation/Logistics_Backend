@@ -23,7 +23,7 @@ class Invoice(Base):
     igst = Column(Float, default=0)
     total_amount = Column(Float, default=0)
 
-    gst_type = Column(String)  # with_gst / without_gst
+    gst_type = Column(String, default="GST") # with_gst / without_gst
     gst_number = Column(String)
 
     notes = Column(Text)
